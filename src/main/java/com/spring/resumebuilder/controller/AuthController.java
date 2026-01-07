@@ -1,6 +1,7 @@
 package com.spring.resumebuilder.controller;
 
 import com.spring.resumebuilder.dto.AuthResponse;
+import com.spring.resumebuilder.dto.LoginRequest;
 import com.spring.resumebuilder.dto.RegisterRequest;
 import com.spring.resumebuilder.service.AuthService;
 import com.spring.resumebuilder.service.FileUploadService;
@@ -43,14 +44,17 @@ public class AuthController {
 
     }
 
-    @PostMapping()
+    @PostMapping(UPLOAD_PROFILE)
     public ResponseEntity<?> uploadImage(@RequestPart("image") MultipartFile file) throws IOException {
         log.info("Inside UploadImageService: uploadImage() {}", file);
         Map<String,String> response = fileUploadService.uploadSingleImage(file);
         return ResponseEntity.ok(response);
+    }
 
-
-
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request){
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
