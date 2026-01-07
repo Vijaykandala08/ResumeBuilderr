@@ -1,6 +1,7 @@
 package com.spring.resumebuilder.service;
 
 import com.spring.resumebuilder.dto.AuthResponse;
+import com.spring.resumebuilder.dto.LoginRequest;
 import com.spring.resumebuilder.dto.RegisterRequest;
 import com.spring.resumebuilder.exception.ResourceExistsException;
 import com.spring.resumebuilder.model.User;
@@ -8,6 +9,8 @@ import com.spring.resumebuilder.respository.Userrespository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ public class AuthService {
 
     private final Userrespository userrespository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponse register(RegisterRequest request) {
         log.info("Inside AuthService: register() {}", request);
@@ -96,7 +100,7 @@ public class AuthService {
             return User.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .password(request.getPassword())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .profileImageUrl(request.getProfileImageUrl())
                     .subscriptionPlan("Basic")
                     .emailVerified(false)
@@ -118,6 +122,24 @@ public class AuthService {
             user.setVerificationToken(null);
             user.setVerificationExpires(null);
             userrespository.save(user);
+        }
+
+        public AuthResponse login(LoginRequest request){
+             User existingUser = userrespository.findByEmail(request.getEmail())
+                     .orElseThrow(()-> new UsernameNotFoundException("Invalid Email or password"));
+             if(!passwordEncoder.matches(request.getPassword(), existingUser.getPassword())){
+                 throw new UsernameNotFoundException("Invalid Email or password");
+             }
+             if(!existingUser.isEmailVerified()){
+                 throw new RuntimeException("Please verify your email before logging in.");
+             }
+
+             String token = "jwtToken";
+             AuthResponse response = toResponse(existingUser);
+             response.setToken(token);
+             log.info("Inside AuthService: login() {}", response);
+             return response;
+
         }
 
 }
