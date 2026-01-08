@@ -6,6 +6,7 @@ import com.spring.resumebuilder.dto.RegisterRequest;
 import com.spring.resumebuilder.exception.ResourceExistsException;
 import com.spring.resumebuilder.model.User;
 import com.spring.resumebuilder.respository.Userrespository;
+import com.spring.resumebuilder.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ public class AuthService {
     private final Userrespository userrespository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
 
     public AuthResponse register(RegisterRequest request) {
         log.info("Inside AuthService: register() {}", request);
@@ -115,7 +117,7 @@ public class AuthService {
             User user = userrespository.findByVerificationToken(token)
                     .orElseThrow(()-> new RuntimeException("Invalid or Expired Verification Token"));
 
-            if(user .getVerificationExpires() != null && user.getVerificationExpires().isBefore(LocalDateTime.now())){
+            if(user.getVerificationExpires() != null && user.getVerificationExpires().isBefore(LocalDateTime.now())){
                 throw new RuntimeException("Verification token has expired.Please request new one");
             }
             user.setEmailVerified(true);
@@ -134,7 +136,7 @@ public class AuthService {
                  throw new RuntimeException("Please verify your email before logging in.");
              }
 
-             String token = "jwtToken";
+             String token = jwtUtils.generateToken(existingUser.getId());
              AuthResponse response = toResponse(existingUser);
              response.setToken(token);
              log.info("Inside AuthService: login() {}", response);
