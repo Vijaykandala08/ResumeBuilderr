@@ -38,6 +38,7 @@ public class SecurityConfig {
                         auth.requestMatchers("/api/auth/register",
                                              "/api/auth/login",
                                              "/api/auth/verify-email",
+                                             "/api/auth/resend-verification",
                                              "/api/auth/upload-image",
                                              "/actuator/health").permitAll()
                                 .anyRequest().authenticated())
