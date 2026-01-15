@@ -168,4 +168,9 @@ public class AuthService {
 
         }
 
+    public AuthResponse getProfile(Object principalObject) {
+        log.debug("Inside AuthService: getProfile() {}", principalObject);
+        User existingUser = (User)principalObject;
+        return toResponse(existingUser);
+    }
 }
