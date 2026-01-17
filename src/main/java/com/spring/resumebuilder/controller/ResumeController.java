@@ -4,6 +4,7 @@ package com.spring.resumebuilder.controller;
 import com.spring.resumebuilder.dto.CreatedResumeRequest;
 import com.spring.resumebuilder.model.Resume;
 import com.spring.resumebuilder.respository.ResumeRepository;
+import com.spring.resumebuilder.service.FileUploadService;
 import com.spring.resumebuilder.service.ResumeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -16,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static com.spring.resumebuilder.util.AppConstants.*;
 
@@ -27,6 +30,7 @@ import static com.spring.resumebuilder.util.AppConstants.*;
 public class ResumeController {
 
     private final ResumeService resumeService;
+    private final FileUploadService fileUploadService;
 
     @PostMapping
     public ResponseEntity<?> createResume(@Valid @RequestBody CreatedResumeRequest request, Authentication authentication) {
@@ -75,10 +79,15 @@ public class ResumeController {
 
     @PutMapping(UPLOAD_IMAGES)
     public ResponseEntity<?> uploadResumeImages(@PathVariable String id,
-                                                @RequestPart(value = "thumbnail", required = true) MultipartFile thumbnail,
+                                                @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
                                                 @RequestPart(value = "profileImage",required = false ) MultipartFile profileImage,
-                                                HttpServletRequest request){
-        return null;
+                                                Authentication authentication) throws IOException {
+        // step 1: Call the service method
+        Map<String,String> response = fileUploadService.uploadResumeImages(id,authentication.getPrincipal(),thumbnail,profileImage);
+        log.info("response={}" ,response);
+        //step 2: return the response
+        return ResponseEntity.ok(response);
+
 
     }
 
