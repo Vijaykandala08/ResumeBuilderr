@@ -92,8 +92,12 @@ public class ResumeController {
     }
 
     @DeleteMapping(ID)
-    public ResponseEntity<?> deleteResume(@PathVariable String id){
-        return null;
+    public ResponseEntity<?> deleteResume(@PathVariable String id,
+                                          Authentication authentication){
+        //step 1: call the service method
+        resumeService.deleteResume(id,authentication.getPrincipal());
+        //step 2: return the response
+        return ResponseEntity.ok(Map.of("message", "Resume deleted successfully"));
 
     }
 

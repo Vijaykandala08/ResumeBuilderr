@@ -71,7 +71,7 @@ public class ResumeService {
         log.info("Getting resume {}" ,response);
         //step 2: Call the repo finder method
         Resume existingResume = resumeRepository.findByUserIdAndId(response.getId(), resumeId)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new RuntimeException("User not found with these resumeId"));
         log.info("Getting resume {}" ,existingResume);
         //step 3: return the result
         return existingResume;
@@ -103,5 +103,16 @@ public class ResumeService {
         //step 4: save the details into database
         resumeRepository.save(existingResume);
         return existingResume;
+    }
+
+    public void deleteResume(String resumeId, Object principal) {
+        //step 1: get the current profile
+        AuthResponse response = authService.getProfile(principal);
+        //step 2: call the repository finder method
+        Resume existingResume = resumeRepository.findByUserIdAndId(response.getId(), resumeId)
+                .orElseThrow(()-> new RuntimeException("Resume not found"));
+
+        resumeRepository.delete(existingResume);
+
     }
 }
