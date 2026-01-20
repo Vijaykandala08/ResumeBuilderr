@@ -11,4 +11,6 @@ public interface ResumeRepository extends MongoRepository<Resume, String> {
     List<Resume> findByUserIdOrderByUpdatedAtDesc(String userId);
 
     Optional<Resume> findByUserIdAndId(String userId, String id);
+    
+    Optional<Resume> deleteByUserIdAndId(String userIdd, String id);
 }
