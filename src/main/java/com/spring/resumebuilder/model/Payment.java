@@ -33,6 +33,8 @@ public class Payment {
     @Builder.Default
     private String status = "created"; //created,paid,failed
 
+    private String receipt;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

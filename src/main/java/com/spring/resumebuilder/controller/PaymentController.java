@@ -1,5 +1,7 @@
 package com.spring.resumebuilder.controller;
 
+import com.razorpay.RazorpayException;
+import com.spring.resumebuilder.model.Payment;
 import com.spring.resumebuilder.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +23,23 @@ public class PaymentController {
 
     @PostMapping("/create-order")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, String> request,
-                                         Authentication authentication) {
+                                         Authentication authentication) throws RazorpayException {
         //step 1:Validate the request
         String planType = request.get("planType");
         if(!PREMIUM.equalsIgnoreCase(planType)){
             return ResponseEntity.badRequest().body(Map.of("message","Invalid planType"));
         }
         //step 2: Call the service method
+        Payment payment = paymentService.createOrder(authentication.getPrincipal(),planType);
         //step 3: Prepare the response object
+        Map<String,Object> response = Map.of(
+                "orderId",payment.getRazorpayOrderId(),
+                "amount",payment.getAmount(),
+                "currency",payment.getCurrency(),
+                "receipt",payment.getReceipt()
+        );
         //step 4: return the response
-        return null;
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify")
