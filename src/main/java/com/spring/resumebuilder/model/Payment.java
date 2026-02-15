@@ -30,6 +30,7 @@ public class Payment {
     private Integer amount;
     private String currency;
     private String planType;
+
     @Builder.Default
     private String status = "created"; //created,paid,failed
 
